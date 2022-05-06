@@ -9,9 +9,6 @@ import './StakingRewards.sol';
 contract StakingRewardsFactory is Ownable {
     using SafeMath for uint256;
 
-    // immutables
-    uint256 public stakingRewardsGenesis;
-
     // the staking tokens for which the rewards contract has been deployed
     address[] public stakingTokens;
 
@@ -58,11 +55,15 @@ contract StakingRewardsFactory is Ownable {
         require(rewardsToken != address(0), 'Rewards token = ZERO address');
         require(rewardAmount > 0, 'Insufficient amount');
 
+
         if (rounds[stakingToken] == 0) {
             rounds[stakingToken] = 1;
         } else {
             uint256 round = rounds[stakingToken];
-            require(stakingRewardsInfoByStakingToken[stakingToken][round].periodFinish < block.timestamp, '');
+            require(
+                stakingRewardsInfoByStakingToken[stakingToken][round].periodFinish < block.timestamp,
+                'deploy: already deployed and active'
+            );
             rounds[stakingToken] += 1;
         }
 
@@ -84,7 +85,7 @@ contract StakingRewardsFactory is Ownable {
 
         require(
             IERC20(rewardsToken).transferFrom(msg.sender, info.stakingRewards, rewardAmount),
-            'StakingRewardsFactory::notifyRewardAmount: transfer failed'
+            'StakingRewardsFactory: transfer failed'
         );
 
         StakingRewards(info.stakingRewards).notifyRewardAmount(rewardAmount);
@@ -101,14 +102,14 @@ contract StakingRewardsFactory is Ownable {
     }
 
     function addAdmin(address admin) public onlyOwner {
-        require(admin != address(0));
+        require(admin != address(0), 'can not be a zero address');
         admins[admin] = true;
 
         emit AddAdmin(admin);
     }
 
     function removeAdmin(address admin) public onlyOwner {
-        require(admin != address(0));
+        require(admin != address(0), 'can not be a zero address');
         admins[admin] = false;
 
         emit RemoveAdmin(admin);
@@ -117,7 +118,7 @@ contract StakingRewardsFactory is Ownable {
     /* ========== MODIFIERS ========== */
 
     modifier onlyAdmins() {
-        if (!admins[msg.sender]) revert();
+        if (!admins[msg.sender]) revert('caller is not the admin');
         _;
     }
 

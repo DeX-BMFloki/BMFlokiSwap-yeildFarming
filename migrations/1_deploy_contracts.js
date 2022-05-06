@@ -1,5 +1,5 @@
-const StakingRewardFactory = artifacts.require("StakingRewardFactory");
+const StakingRewardsFactory = artifacts.require("StakingRewardsFactory");
 
 module.exports = async function (deployer) {
-  await deployer.deploy(StakingRewardFactory);
+  await deployer.deploy(StakingRewardsFactory);
 };
