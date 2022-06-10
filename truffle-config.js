@@ -5,6 +5,9 @@ module.exports = {
   api_keys: {
     bscscan: BSCSCANAPIKEY
   },
+  plugins: [
+    'truffle-plugin-verify'
+  ],
   networks: {
     development: {
       host: "127.0.0.1",

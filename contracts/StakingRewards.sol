@@ -23,6 +23,7 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
     uint256 public rewardsDuration;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
+    address public owner;
 
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
@@ -36,12 +37,14 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         address _rewardsDistribution,
         address _rewardsToken,
         address _stakingToken,
-        uint256 _rewardsDuration
+        uint256 _rewardsDuration,
+        address _owner
     ) public {
         rewardsDistribution = _rewardsDistribution;
         rewardsToken = IERC20(_rewardsToken);
         stakingToken = IERC20(_stakingToken);
         rewardsDuration = _rewardsDuration;
+        owner = _owner;
     }
 
     /* ========== VIEWS ========== */
@@ -152,6 +155,20 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         emit RewardAdded(reward);
     }
 
+    function recoverToken(address tokenAddress, uint256 tokenAmount) external {
+        require(msg.sender == owner, 'caller is not owner');
+        require(tokenAddress != address(stakingToken), 'cannot withdraw staking token');
+
+        if (_totalSupply == 0) {
+            require(block.timestamp >= periodFinish + 2 weeks, 'wait 2 weeks after finish');
+        } else {
+            require(block.timestamp >= periodFinish + 4 weeks, 'wait 1 month after finish');
+        }
+
+        IERC20(tokenAddress).safeTransfer(owner, tokenAmount);
+        emit Recovered(tokenAddress, tokenAmount);
+    }
+
     /* ========== MODIFIERS ========== */
 
     modifier updateReward(address account) {
@@ -170,6 +187,7 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
     event Staked(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
+    event Recovered(address token, uint256 amount);
 }
 
 interface IBMFlokiERC20 {

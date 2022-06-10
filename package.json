@@ -17,7 +17,8 @@
     "prepublishOnly": "yarn test"
   },
   "dependencies": {
-    "openzeppelin-solidity-2.3.0": "npm:openzeppelin-solidity@2.3.0"
+    "openzeppelin-solidity-2.3.0": "npm:openzeppelin-solidity@2.3.0",
+    "truffle-plugin-verify": "^0.5.24"
   },
   "devDependencies": {
     "@types/chai": "^4.2.12",

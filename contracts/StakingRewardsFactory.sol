@@ -18,6 +18,7 @@ contract StakingRewardsFactory is Ownable {
         uint256 rewardAmount;
         address rewardsToken;
         uint256 periodFinish;
+        bool hidden;
     }
 
     // type of staking reward contract
@@ -55,7 +56,6 @@ contract StakingRewardsFactory is Ownable {
         require(rewardsToken != address(0), 'Rewards token = ZERO address');
         require(rewardAmount > 0, 'Insufficient amount');
 
-
         if (rounds[stakingToken] == 0) {
             rounds[stakingToken] = 1;
         } else {
@@ -75,12 +75,14 @@ contract StakingRewardsFactory is Ownable {
                 address(this),
                 rewardsToken,
                 stakingToken,
-                rewardsDuration
+                rewardsDuration,
+                msg.sender
             )
         );
         info.rewardAmount = rewardAmount;
         info.rewardsToken = rewardsToken;
         info.periodFinish = block.timestamp.add(rewardsDuration);
+        info.hidden = false;
         stakingTokens.push(stakingToken);
 
         require(
@@ -99,6 +101,18 @@ contract StakingRewardsFactory is Ownable {
             rounds[stakingToken],
             stakingType
         );
+    }
+
+    function hide(address stakingToken) public onlyAdmins {
+        StakingRewardsInfo storage info = stakingRewardsInfoByStakingToken[stakingToken][rounds[stakingToken]];
+
+        if (info.hidden == false) {
+            info.hidden = true;
+        } else {
+            info.hidden = false;
+        }
+
+        emit Hide(info.stakingRewards, info.hidden);
     }
 
     function addAdmin(address admin) public onlyOwner {
@@ -135,4 +149,5 @@ contract StakingRewardsFactory is Ownable {
         uint256 round,
         StakingType stakingType
     );
+    event Hide(address indexed farm, bool hidden);
 }
