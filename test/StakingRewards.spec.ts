@@ -18,7 +18,7 @@ describe('StakingRewards', () => {
       gasLimit: 9999999,
     },
   })
-  const [wallet, staker, secondStaker] = provider.getWallets()
+  const [wallet, ownerwallet, staker, secondStaker] = provider.getWallets()
   const loadFixture = createFixtureLoader([wallet], provider)
 
   let stakingRewards: Contract
@@ -39,10 +39,11 @@ describe('StakingRewards', () => {
       wallet.address,
       rewardsToken.address,
       stakingToken.address,
-      REWARDS_DURATION
+      REWARDS_DURATION,
+      ownerwallet.address
     ])
     const receipt = await provider.getTransactionReceipt(stakingRewards.deployTransaction.hash)
-    expect(receipt.gasUsed).to.eq('1418643')
+    expect(receipt.gasUsed).to.eq('1603855')
   })
 
   it('rewardsDuration', async () => {

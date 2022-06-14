@@ -26,12 +26,14 @@ export async function stakingRewardsFixture([wallet]: Wallet[]): Promise<Staking
   const rewardsToken = await deployContract(wallet, TestERC20, [expandTo18Decimals(1000000)])
   const stakingToken = await deployContract(wallet, UniswapV2ERC20, [expandTo18Decimals(1000000)])
   const rewardsDuration = REWARDS_DURATION
+  const owner = wallet.address
 
   const stakingRewards = await deployContract(wallet, StakingRewards, [
     rewardsDistribution,
     rewardsToken.address,
     stakingToken.address,
-    rewardsDuration
+    rewardsDuration,
+    owner
   ])
 
   return { stakingRewards, rewardsToken, stakingToken, rewardsDuration }
